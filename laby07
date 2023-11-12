@@ -1,0 +1,214 @@
+# laby 07
+#Zadanie 1
+import argparse
+from sympy import symbols, diff, sympify
+
+
+def newton_apple(f, g, step_size, max_iter, epsilon):
+    x = symbols('x')
+    x_n = g
+    df = diff(f, x)
+    for i in range(max_iter):
+        f_n = f.subs(x, x_n)
+        df = df.subs(x, x_n)
+        print(x_n)
+        if abs(x_n) < epsilon:
+            print(x_n)
+            return
+        x_n = x_n - (f_n / df * step_size)
+
+    print("Nie znaleziono")
+
+
+def Main():
+    praser = argparse.ArgumentParser(description="Wykorzystuje newtona do miejsc zerowych")
+    praser.add_argument("function", help="Dowej funkcje")
+    praser.add_argument("-n", "--max_iter", type=int, default=15, help="Ile razy?")
+    praser.add_argument("-g", "--guess", type=float, default=0.1, help="Czyzbys przypuszczal gdzie jest miejsce zerowe?")
+    praser.add_argument("-s", "--step_size", type=float, default=0.001, help="Rozmiar krokow")
+    praser.add_argument("-e", "--epsilon", type=float, default=1e-5, help="Podej dokladnosc")
+
+    args = praser.parse_args()
+
+    function = args.function
+    guess = args.guess
+    step_size = args.step_size
+    max_iter = args.max_iter
+    epsilon = args.epsilon
+
+    newton_apple(sympify(function), guess, step_size, max_iter, epsilon)
+
+
+if __name__ == "__main__":
+    Main()
+
+# Zadanie 2
+import re
+
+
+class BagOfWords:
+    def __init__(self, text):
+        self.my_dict = defaultdict(int)
+        words = re.findall(r'\b\w+\b', text.lower())
+        for w in words:
+            self.my_dict[w] = words.count(w)
+
+    def __str__(self):
+        return ", ".join(f"{key}: {value}" for key, value in self.my_dict.items())
+
+    def __contains__(self, item):
+        return item in self.my_dict.keys()
+
+    def __iter__(self):
+        sor = sorted(self.my_dict.items(), key=lambda item: item[1], reverse=True)
+        for key, value in sor:
+            yield key
+
+    def __add__(self, other):
+        s = ' '.join(k for k, v in self.my_dict.items() for _ in range(v))
+        s += ' '
+        s += ' '.join(k for k, v in other.my_dict.items() for _ in range(v))
+        return BagOfWords(s)
+
+    def __getitem__(self, item):
+        return self.my_dict[item]
+
+    def __setitem__(self, key, value):
+        self.my_dict[key] = value
+
+    def sor(self):
+        sorted(self.my_dict)
+
+
+st = ""
+with open('Hamlet.txt', encoding='utf=8') as f:
+    for line in f.readlines():
+        st += line
+bg = BagOfWords(st)
+bg.sor()
+ik = 0
+for i, j in bg.my_dict.items():
+    if ik == 10:
+        break
+    print(i, j)
+    ik += 1
+print(bg.my_dict['hamlet'])
+
+# Zadanie 3
+import pickle
+
+with open("bag_of_words_hamlet.pkl", "wb") as file:
+    pickle.dump(bg, file)
+
+with open("bag_of_words_hamlet.pkl", "rb") as file:
+    loaded_bag = pickle.load(file)
+
+print(loaded_bag)
+
+# Zadanie 4
+from datetime import datetime
+import pytz
+data = countries #otwarte z pliku
+euro = {}
+asia = {}
+nAmerica = {}
+sAmerica = {}
+africa = {}
+oceania = {}
+all = {}
+for d in data:
+    s = d.get('continent')
+    w = str(datetime.now(pytz.timezone(d.get('timezones')[0])).time())
+    h = datetime.now(pytz.timezone(d.get('timezones')[0])).hour
+    m = datetime.now(pytz.timezone(d.get('timezones')[0])).minute
+    sk = datetime.now(pytz.timezone(d.get('timezones')[0])).second
+    all[d.get('name')] = (h*10000) + (m*100) + sk
+    if s == 'Asia':
+        asia[d.get('name')] = w
+    if s == 'Oceania':
+        oceania[d.get('name')] = w
+    if s == 'Africa':
+        africa[d.get('name')] = w
+    if s == 'Europe':
+        euro[d.get('name')] = w
+    if s == 'North America':
+        nAmerica[d.get('name')] = w
+    if s == 'South America':
+        sAmerica[d.get('name')] = w
+print("Europe")
+print(euro.items())
+print("Asia")
+print(asia.items())
+print("North America")
+print(nAmerica.items())
+print("South America")
+print(sAmerica.items())
+print("Oceania")
+print(oceania.items())
+print("Africa")
+print(africa.items())
+item = list(all.items())
+sor = sorted(item, key=lambda item: item[1], reverse=True)
+all = dict(sor)
+def symulator(secior, name_of_countrie):
+    se = {}
+    bylo = False
+    for i,j in secior.items():
+        if i == name_of_countrie:
+            bylo = True
+        if bylo:
+            print(i, j)
+        else:
+            se[i] = j
+    for i,j in se.items():
+        print(i, j)
+symulator(all, 'Angola')
+
+# Zadanie 5
+import re
+import json
+
+class BagOfWords:
+    def __init__(self, text):
+        self.my_dict = defaultdict(int)
+        words = re.findall(r'\b\w+\b', text.lower())
+        for w in words:
+            self.my_dict[w] = words.count(w)
+
+    def __str__(self):
+        return ", ".join(f"{key}: {value}" for key, value in self.my_dict.items())
+
+    def __contains__(self, item):
+        return item in self.my_dict.keys()
+
+    def __iter__(self):
+        sor = sorted(self.my_dict.items(), key=lambda item: item[1], reverse=True)
+        for key, value in sor:
+            yield key
+
+    def __add__(self, other):
+        s = ' '.join(k for k, v in self.my_dict.items() for _ in range(v))
+        s += ' '
+        s += ' '.join(k for k, v in other.my_dict.items() for _ in range(v))
+        return BagOfWords(s)
+
+    def __getitem__(self, item):
+        return self.my_dict[item]
+
+    def __setitem__(self, key, value):
+        self.my_dict[key] = value
+
+    def sor(self):
+        sorted(self.my_dict)
+
+    def save(self, name):
+        with open(name, 'w') as f:
+            json.dump(self.my_dict, f)
+
+    @classmethod
+    def load(cl, name):
+        with open(name, 'r') as f:
+            data = json.load(f)
+        instance = cl('')
+        instance.my_dict = data
+        return instance
