@@ -1,0 +1,219 @@
+from time import time
+
+def timeit(func):
+    def wrapper(*args, **kwargs):
+        start_time = time()
+        result = func(*args, **kwargs)
+        end_time = time()
+        elapsed_time = end_time - start_time
+        print(f"Function {func.__name__} took: {elapsed_time:.5f} seconds")
+        return result
+    return wrapper
+
+
+@timeit
+def squares_list(n):
+    squares = []
+    for i in range(n):
+        squares.append(i ** 2)
+    return squares
+
+@timeit
+def squares_comprehension(n):
+    return [i ** 2 for i in range(n)]
+
+@timeit
+def squares_map(n):
+    return map(lambda x: x**2, range(n))
+
+n = 1000000
+l = squares_list(n)
+c = squares_comprehension(n)
+m = squares_map(n)
+
+Zadanie 3
+
+import sys
+
+
+def derivate(epsilon=None):
+     if epsilon is None:
+         epsilon = 1000 * sys.float_info.epsilon
+
+     def decorator(func):
+        def wrapper(x):
+            h = epsilon
+            return (func(x+h) - func(x)) / h
+        return wrapper
+
+     return decorator
+
+
+
+@derivate(0.01)
+def f(x):
+    return x*x
+
+@derivate(0.00001)
+def g(x):
+    return x*x*x+3
+
+def test(a, b, eps=1):
+    return abs(round(a)-round(b)) < eps
+
+print(test(f(100), 200.0))
+print(round(f(0)) == 0.0)
+
+print(test(g(100), 30000.0))
+print(round(g(0)) == 0.0)
+
+from random import random
+for x in [random()*1000. for _ in range(20)]:
+    print(f(x), 2*x, '\t', test(f(x), 2*x))
+    print(g(x), 3*x**2, '\t', test(g(x), 3*x**2))
+
+
+Zadanie 4
+def accepts(*types):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            for i, j in zip(args, types):
+                if not isinstance(i, j):
+                    raise TypeError
+            for i, j in zip(kwargs.values(), types[len(args)::]):
+                if not isinstance(i, j):
+                    raise TypeError
+            return func(*args, **kwargs)
+        return wrapper
+    return decorator
+
+
+@accepts(str)
+def capitalize(word):
+    return word[0].upper() + word[1:]
+
+
+print(capitalize('ola') == 'Ola')
+
+try:
+    capitalize(2)
+except TypeError:
+    print(True)
+
+
+@accepts(float, int)
+def static_pow(base, exp):
+    return base ** exp
+
+
+print(static_pow(2., 2) == 4.)
+print(static_pow(2., exp=2) == 4.)
+print(static_pow(base=2., exp=2) == 4.)
+
+try:
+    static_pow('x', 10)
+except TypeError:
+    print(True)
+
+try:
+    static_pow(2, 2.2)
+except TypeError:
+    print(True)
+
+
+Zadanie 5
+
+def returns(*types):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            odp = func(*args, **kwargs)
+            if len(str(odp).split()) != len(types):
+                raise TypeError
+            for i, j in zip(types, odp):
+                if not isinstance(j, i):
+                    raise TypeError
+            return odp
+        return wrapper
+    return decorator
+
+
+
+@returns(str)
+def str_only_identity(word):
+    return word
+
+
+print(str_only_identity('hello') == 'hello')
+
+try:
+    str_only_identity(10)
+except TypeError:
+    print(True)
+
+Zadanie 6
+from random import random
+
+def cached(func):
+    def decorator(*args, **kwargs):
+
+
+@cached
+def foo(x, y=1, z=4):
+    return random()
+
+
+print(foo(3) == foo(3))
+print(foo(4) == foo(4))
+print(foo(3, z=-1, y=3) == foo(3, y=3, z=-1))
+print(foo(3) != foo(x=3))
+a = foo(3)
+foo.cache_reset()
+print(a != foo(3))
+print(foo.cache_status() == 'Function foo called 10 times, evaluated 5 times')
+
+Zadanie 7
+def zlozenie(n):
+    def decorator(func):
+        def wrapper(x):
+            arg = func(x)
+            for i in range(n-1):
+                arg = func(arg)
+            return arg
+        return wrapper
+    return decorator
+
+@zlozenie(3)
+def f1(x):
+    return x+1
+
+@zlozenie(2)
+def f2(x):
+    return x*x
+
+@zlozenie(5)
+def f3(word):
+    return "".join(chr(ord(l)+1) for l in word)
+
+print(f1(2)==5)
+print(f2(3)==81)
+print(f3("alamakota")=="fqfrfptyf")
+
+Zadanie 8
+
+def my_function(x, y):
+    match x:
+        case 1:
+            return y*y
+        case 2:
+            return x+y
+        case 3:
+            return x*y
+        case 4:
+            return 0
+        case _:
+            raise KeyError
+
+print(my_function(1,3)==9)
+print(my_function(2,4)==6)
+print(my_function(3,1)==3)
+print(my_function(4,9)==0)
