@@ -1,0 +1,79 @@
+
+#Zadanie 5
+class FrozenDictionary(object):
+    """
+    Odpowiednik frozenset dla zbiorów, czyli słownik, który nie jest modyfikowalny,
+    a dzięki temu może być np. elementem zbiorów, albo kluczem w innym słowniku.
+    """
+
+    def __init__(self, dictionary):
+        """Tworzy nowy zamrożony słownik z podanego słownika"""
+        self._frozen_dict = dictionary
+        self._has_val = hash(frozenset(dictionary.items()))
+
+    def __hash__(self):
+        """Zwraca hasz słownika (int)"""
+        return self._has_val
+
+    def __eq__(self, d):
+        """Porównuje nasz słownik z zamrożonym słownikiem d"""
+        if isinstance(d, FrozenDictionary):
+            return d._frozen_dict == self._frozen_dict
+        return False
+
+    def __repr__(self):
+        """Zwraca reprezentację naszego słownika jako string"""
+        return repr(self._frozen_dict)
+
+
+dicts = [FrozenDictionary({'ala': 4}),
+         FrozenDictionary({'ala': 1, 'jacek': 0}),
+         FrozenDictionary({'ala': 4}),
+         FrozenDictionary({'ala': 2}),
+         FrozenDictionary({'jacek': 0, 'ala': 1})]
+
+s = set(dicts)
+print(dicts[0] == dicts[2])
+print(dicts[0] != dicts[3])
+print(len(s) == 3)
+for d in dicts:
+    print(d in s)
+
+# Powinno wyświetlić coś w stylu set([{'ala': 4}, {'ala': 1, 'jacek': 0}, {'ala': 2}])
+print(s)
+
+#Zadanie 6
+
+class BagOfWords:
+    def __init__(self, text):
+        self.my_dict = defaultdict(int)
+        for w in set(list(text.split(" "))):
+            self.my_dict[w] = len(re.findall(w, text))
+    def __str__(self):
+        return ", ".join(f"{key}: {value}" for key, value in self.my_dict.items())
+    def __contains__(self, item):
+        return item in self.my_dict.keys()
+    def __iter__(self):
+        sor = sorted(self.my_dict.items(), key=lambda item: item[1], reverse=True) #krotki
+        for key, value in sor:
+            yield key
+    def __add__(self, other):
+        s = ' '.join(k for k, v in self.my_dict.items() for _ in range(v))
+        s += ' '
+        s += ' '.join(k for k, v in other.my_dict.items() for _ in range(v))
+        return BagOfWords(s)
+    def __getitem__(self, item):
+        return self.my_dict[item]
+    def __setitem__(self, key, value):
+        self.my_dict[key] = value
+
+
+
+
+bow1 = BagOfWords("ala ma kota ala ma ala")
+bow2 = BagOfWords("tomek tez ma kota")
+bow3 = bow1 + bow2
+print('tomek' in bow1) # False
+print('tomek' in bow3) # True
+print('ala' in bow3) # True
+print(bow3) # ala:3, ma:3, kota:2, tez:1, tomek:1
