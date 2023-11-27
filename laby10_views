@@ -1,0 +1,39 @@
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.urls import reverse_lazy
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic.detail import DetailView
+from .models import Note
+from .forms import NoteForm
+
+class NoteCreateView(CreateView):
+    model = Note
+    form_class = NoteForm
+    template_name = 'notes/note_form.html'
+    success_url = reverse_lazy('notes_list')
+
+    def form_valid(self, form):
+        form.instance.created_by = self.request.user
+        return super().form_valid(form)
+
+class NoteUpdateView(UserPassesTestMixin, UpdateView):
+    model = Note
+    form_class = NoteForm
+    template_name = 'notes/note_form.html'
+    success_url = reverse_lazy('notes_list')
+
+    def test_func(self):
+        note = self.get_object()
+        return self.request.user == note.created_by
+
+class NoteDeleteView(UserPassesTestMixin, DeleteView):
+    model = Note
+    template_name = 'notes/note_confirm_delete.html'
+    success_url = reverse_lazy('notes_list')
+
+    def test_func(self):
+        note = self.get_object()
+        return self.request.user == note.created_by or self.request.user.is_staff
+
+class NoteDetailView(DetailView):
+    model = Note
+    template_name = 'notes/note_detail.html'
