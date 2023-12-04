@@ -1,0 +1,146 @@
+# Zadanie 1
+import numpy as np
+import timeit
+t_start = timeit.default_timer()
+arr = np.random.rand(10000)
+arr = arr + 1
+t_middle = timeit.default_timer()
+t = []
+for i in range(10000):
+    t.append(random.random())
+for i in range(len(t)):
+    t[i] += 1
+t_end = timeit.default_timer()
+print(t_middle-t_start)
+print(t_end-t_middle)
+
+# Zadanie 2
+
+arr = np.random.rand(10000)
+print(arr[0],' ',arr[1])
+for i in range(len(arr)):
+    arr[i] = np.sin(arr[i]) + np.cos(arr[i])
+print(arr[0],' ',arr[1])
+
+# Zadanie 3
+import numpy as np
+
+def cube_sum(x):
+    """Zwraca sume szescianow elementow"""
+    result = 0
+    for i in range(len(x)):
+        result += x[i] ** 3
+    return result
+
+def cube_sum_2(arr):
+    arr = np.power(arr, 3)
+    return np.sum(arr)
+
+t = [1,2,3,4]
+print(cube_sum(t))
+print(cube_sum_2(t))
+
+def almost_variance(x):
+    """Oblicza 1/n * SUM (x_i - mean(x))^4"""
+    m = sum(x) / len(x)
+    result = 0
+    for i in range(len(x)):
+        result += (x[i] - m) ** 4
+    result /= len(x)
+    return result
+
+def almost_variance_2(arr):
+    m = np.sum(arr)/len(arr)
+    return np.sum(np.power(arr-m, 4))/len(arr)
+
+t = [1,2,3,4]
+print(almost_variance(t))
+print(almost_variance_2(t))
+
+# Zadanie 4
+import numpy as np
+
+t = np.arange(10)
+mnozniki = np.arange(1,11)
+for i in range(10):
+    print("Razy: ", i+1)
+    print(t * mnozniki[i])
+
+# Zadnie 5
+import numpy as np
+
+w = np.random.randint(10, size=(10,5))
+def gimme_euklides(arr):
+    odp = []
+    for i in range(9):
+        for j in range(i+1, 10):
+            odp.append(np.sum(np.power(arr[i]-arr[j], 2)))
+    return len(odp)
+
+print(gimme_euklides(w))
+s = np.array([[1,2,3,4],[2,3,4,5]])
+print(s)
+print(np.shape(s))
+s = s[np.newaxis, :, :]
+print(np.shape(s))
+print(s)
+
+# Zadanie 6
+import numpy as np
+
+def walter_white_man(arr):
+    t1 = list(map(lambda x: x[0], w))
+    t2 = list(map(lambda x: x[1], w))
+    s1 = np.sum(t1)/len(t1)
+    s2 = np.sum(t2)/len(t2)
+    odch_st1 = np.sqrt(np.sum(np.power(t1-s1, 2))/len(t1))
+    odch_st2 = np.sqrt(np.sum(np.power(t2-s2, 2))/len(t2))
+    return np.array([(t1-s1)/odch_st1, (t2-s2)/odch_st2])
+
+w = np.array([[0,1],[2,3],[4,5],[6,7],[8,9]])
+print(walter_white_man(w))
+
+# Zadanie 7
+import numpy as np
+
+def gimme_small_cyferka(x, A):
+    As = np.abs(A-x)
+    return A[np.where(A==np.abs(np.min(As)-x))[0][0]]
+
+w = np.array([1,2,3,4,6,8])
+print(gimme_small_cyferka(0, w))
+
+# Zadanie 8
+
+def poly(a, x):
+    x = np.ones(a.size)*x
+    x = np.cumprod(x)
+    return np.sum(a*x)
+
+w = np.arange(7)
+print(poly(w, 2))
+
+# Zadanie 9
+
+import numpy as np
+import cv2  # Do wczytywania i wyświetlania obrazów, wymaga zainstalowania OpenCV
+
+def rgb_to_grayscale(image_path):
+    # Wczytaj obraz przy użyciu OpenCV
+    original_image = cv2.imread(image_path)
+    # Przetwarzanie obrazu do skali szarości
+    image = np.dot(original_image[..., :3], [0.2126, 0.7152, 0.0722])
+    # Przekonwertuj do typu uint8 (8-bitowy bez znaku)
+    image = image.astype(np.uint8)
+    return image
+
+# Zadanie 10
+import numpy as np
+
+def interpolation(x1,x2):
+    lambd = np.arange(0,1.1,0.1)
+    w = lambd[:, None]*x1+(1-lambd[:, None])*x2
+    print(w)
+    return w
+
+interpolation([1],[2])
