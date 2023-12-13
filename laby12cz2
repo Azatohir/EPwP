@@ -1,0 +1,124 @@
+
+import pandas as pd
+# krok 1
+df = pd.read_csv("./lab12_files/ocupation.csv", sep='|')
+
+# krok 2
+print(df.head(25))
+
+# krok 3
+print(df[-11:-1])
+
+# krok 4
+print(df.shape)
+
+# krok 5
+z = df.columns
+print(list(z))
+
+# krok 6
+jobs = df["occupation"]
+print("Roznych pracy jest: ", len(set(jobs)))
+
+# krok 7
+import matplotlib.pyplot as plt
+occupation_counts = df['occupation'].value_counts()
+total_records = len(df)
+percentage_share = (occupation_counts / total_records) * 100
+labels = percentage_share.index
+sizes = percentage_share.values
+fig, ax = plt.subplots()
+ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90)
+ax.axis('equal')
+ax.set_title('Procentowy udział poszczególnych zawodów w zbiorze danych')
+plt.show()
+
+# krok 8
+import matplotlib.pyplot as plt
+import numpy as np
+gender_occupation_counts = df.groupby(['occupation', 'gender']).size().unstack()
+top_10_occupations = gender_occupation_counts.sum(axis=1).nlargest(10).index
+top_10_data = gender_occupation_counts.loc[top_10_occupations]
+men_means = top_10_data['M'].values
+women_means = top_10_data['F'].values
+men_std = np.zeros_like(men_means)
+women_std = np.zeros_like(women_means)
+ind = np.arange(len(top_10_occupations))
+width = 0.35
+
+fig, ax = plt.subplots()
+rects1 = ax.bar(ind - width/2, men_means, width, yerr=men_std,
+                color='SkyBlue', label='Men')
+rects2 = ax.bar(ind + width/2, women_means, width, yerr=women_std,
+                color='IndianRed', label='Women')
+ax.set_ylabel('Liczba pracujących')
+ax.set_title('Liczba pracujących kobiet i mężczyzn w 10 najczęstszych zawodach')
+ax.set_xticks(ind)
+ax.set_xticklabels(top_10_occupations)
+ax.legend()
+
+
+def autolabel(rects, xpos='center'):
+    xpos = xpos.lower()
+    ha = {'center': 'center', 'right': 'left', 'left': 'right'}
+    offset = {'center': 0.5, 'right': 0.57, 'left': 0.43}  # x_txt = x + w*off
+    for rect in rects:
+        height = rect.get_height()
+        ax.text(rect.get_x() + rect.get_width()*offset[xpos], 1.01*height,
+                '{}'.format(height), ha=ha[xpos], va='bottom')
+
+
+autolabel(rects1, "left")
+autolabel(rects2, "right")
+
+plt.show()
+
+# krok 9
+average_age_by_occupation = df.groupby('occupation')['age'].mean()
+occupations = average_age_by_occupation.index
+average_ages = average_age_by_occupation.values
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.bar(occupations, average_ages, color='SkyBlue')
+ax.set_ylabel('Średni wiek')
+ax.set_xlabel('Zawód')
+ax.set_title('Średni wiek pracowników danego zawodu')
+plt.xticks(rotation=45, ha='right')
+plt.show()
+
+# krok 10
+import numpy as np
+import matplotlib.pyplot as plt
+selected_jobs = top_10_occupations
+men_data_selected_jobs = df[(df['gender'] == 'M') & (df['occupation'].isin(selected_jobs))]
+women_data_selected_jobs = df[(df['gender'] == 'F') & (df['occupation'].isin(selected_jobs))]
+men_means = men_data_selected_jobs.groupby('occupation')['age'].mean().values
+men_std = men_data_selected_jobs.groupby('occupation')['age'].std().values
+women_means = women_data_selected_jobs.groupby('occupation')['age'].mean().values
+women_std = women_data_selected_jobs.groupby('occupation')['age'].std().values
+ind = np.arange(len(men_means))
+width = 0.35
+fig, ax = plt.subplots()
+rects1 = ax.bar(ind - width/2, men_means, width, yerr=men_std,
+                color='SkyBlue', label='Men')
+rects2 = ax.bar(ind + width/2, women_means, width, yerr=women_std,
+                color='IndianRed', label='Women')
+ax.set_ylabel('Scores')
+ax.set_title('Scores by group and gender')
+ax.set_xticks(ind)
+ax.set_xticklabels(selected_jobs)
+ax.legend()
+
+def autolabel(rects, xpos='center'):
+    xpos = xpos.lower()
+    ha = {'center': 'center', 'right': 'left', 'left': 'right'}
+    offset = {'center': 0.5, 'right': 0.57, 'left': 0.43}
+
+    for rect in rects:
+        height = rect.get_height()
+        ax.text(rect.get_x() + rect.get_width()*offset[xpos], 1.01*height,
+                '{}'.format(height), ha=ha[xpos], va='bottom')
+
+autolabel(rects1, "left")
+autolabel(rects2, "right")
+
+plt.show()
